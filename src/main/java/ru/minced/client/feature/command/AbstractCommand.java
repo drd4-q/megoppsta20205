@@ -16,6 +16,9 @@ public abstract class AbstractCommand implements IMinecraft {
     @Getter
     private final CommandHeader header = this.getClass().getAnnotation(CommandHeader.class);
 
+    public AbstractCommand(String bind, String s) {
+    }
+
     public abstract void build(LiteralArgumentBuilder<CommandSource> builder);
 
     protected static @NotNull LiteralArgumentBuilder<CommandSource> literal(final String name) {

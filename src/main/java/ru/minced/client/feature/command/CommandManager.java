@@ -1,5 +1,6 @@
 package ru.minced.client.feature.command;
 
+import com.google.common.collect.Lists;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -8,14 +9,14 @@ import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientCommandSource;
 import net.minecraft.command.CommandSource;
-import org.apache.commons.compress.utils.Lists;
+import java.util.List;
+
 import ru.minced.client.core.Minced;
 import ru.minced.client.core.event.EventHandler;
 import ru.minced.client.core.event.impl.chat.EventChat;
 import ru.minced.client.feature.command.impl.*;
 import ru.minced.client.util.IMinecraft;
 
-import java.util.List;
 
 @Getter
 public class CommandManager implements IMinecraft {
@@ -30,17 +31,21 @@ public class CommandManager implements IMinecraft {
     }
 
     public void register() {
-        List.<AbstractCommand>of(
+        for (AbstractCommand command : List.of(
                 new ConfigCommand(),
                 new ToggleCommand(),
                 new PanicCommand(),
                 new FriendsCommand(),
-                new BindCommand(),
+                new BindCommand() {
+                    @Override
+                    public List<String> getLongDesc() {
+                        return List.of();
+                    }
+                },//UwUq(≧▽≦q)👈(⌒▽⌒)👉
                 new GPSCommand(),
                 new ClipCommand(),
                 new IrcCommand()
-
-        ).forEach(command -> {
+        )) {
             commandList.add(command);
             LiteralArgumentBuilder<CommandSource> builder = AbstractCommand.literal(command.getHeader().name());
             command.build(builder);
@@ -51,7 +56,7 @@ public class CommandManager implements IMinecraft {
                 command.build(aliasBuilder);
                 commandDispatcher.register(aliasBuilder);
             }
-        });
+        }
     }
 
     @EventHandler
@@ -64,9 +69,10 @@ public class CommandManager implements IMinecraft {
             }
             event.stop();
             try {
-                commandDispatcher.execute(message, null);
+                commandDispatcher.execute(message, source); // ✅ заменил null на source
             } catch (CommandSyntaxException ignored) {
             }
         }
     }
 }
+

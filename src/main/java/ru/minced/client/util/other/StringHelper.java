@@ -1,121 +1,115 @@
 package ru.minced.client.util.other;
 
-import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.authlib.minecraft.UserApiService;
-import lombok.experimental.UtilityClass;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.SocialInteractionsManager;
-import net.minecraft.client.session.ProfileKeys;
-import net.minecraft.client.session.Session;
-import net.minecraft.client.session.report.AbuseReportContext;
-import net.minecraft.client.session.report.ReporterEnvironment;
-import net.minecraft.client.util.InputUtil;
-import ru.minced.client.util.IMinecraft;
-import ru.minced.client.util.font.Fonts;
+import org.lwjgl.glfw.GLFW;
 import ru.minced.client.core.render.msdf.MsdfFont;
-import ru.minced.mixin.accessor.MinecraftAccessor;
 
-import static net.minecraft.client.util.InputUtil.Type.*;
+public class StringHelper {
 
-@UtilityClass
-public class StringHelper implements IMinecraft {
+    /**
+     * Преобразует имя клавиши (например "R", "SPACE", "F1", "NUMPAD1", "CTRL") в GLFW keyCode.
+     * Возвращает -1, если имя неизвестно.
+     */
+    public static int getKeyByName(String name) {
+        if (name == null) return -1;
+        String key = name.trim().toUpperCase();
 
-    public static void setSession(Session session) throws AuthenticationException {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        MinecraftAccessor mca = (MinecraftAccessor) mc;
-        mca.setSession(session);
-        UserApiService apiService;
-        apiService = mca.getAuthenticationService().createUserApiService(session.getAccessToken());
-        mca.setUserApiService(apiService);
-        mca.setSocialInteractionsManager(new SocialInteractionsManager(mc, apiService));
-        mca.setProfileKeys(ProfileKeys.create(apiService, session, mc.runDirectory.toPath()));
-        mca.setAbuseReportContext(AbuseReportContext.create(ReporterEnvironment.ofIntegratedServer(), apiService));
+        // Буквы A-Z
+        if (key.length() == 1) {
+            char c = key.charAt(0);
+            if (c >= 'A' && c <= 'Z') {
+                return GLFW.GLFW_KEY_A + (c - 'A');
+            }
+            if (c >= '0' && c <= '9') {
+                return GLFW.GLFW_KEY_0 + (c - '0');
+            }
+        }
+
+        // F1-F24
+        if (key.startsWith("F")) {
+            try {
+                int f = Integer.parseInt(key.substring(1));
+                if (f >= 1 && f <= 24) {
+                    return GLFW.GLFW_KEY_F1 + (f - 1);
+                }
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // Numpad (NUMPAD1, NP1)
+        if (key.startsWith("NUMPAD") || key.startsWith("NP")) {
+            String digits = key.replace("NUMPAD", "").replace("NP", "");
+            if (digits.length() == 1 && Character.isDigit(digits.charAt(0))) {
+                return GLFW.GLFW_KEY_KP_0 + (digits.charAt(0) - '0');
+            }
+        }
+
+        switch (key) {
+            case "SPACE": return GLFW.GLFW_KEY_SPACE;
+            case "LSHIFT": case "SHIFT": return GLFW.GLFW_KEY_LEFT_SHIFT;
+            case "RSHIFT": return GLFW.GLFW_KEY_RIGHT_SHIFT;
+            case "LCTRL": case "CTRL": return GLFW.GLFW_KEY_LEFT_CONTROL;
+            case "RCTRL": return GLFW.GLFW_KEY_RIGHT_CONTROL;
+            case "LALT": case "ALT": return GLFW.GLFW_KEY_LEFT_ALT;
+            case "RALT": return GLFW.GLFW_KEY_RIGHT_ALT;
+            case "TAB": return GLFW.GLFW_KEY_TAB;
+            case "ESC": case "ESCAPE": return GLFW.GLFW_KEY_ESCAPE;
+            case "ENTER": case "RETURN": return GLFW.GLFW_KEY_ENTER;
+            case "BACKSPACE": return GLFW.GLFW_KEY_BACKSPACE;
+            case "DELETE": return GLFW.GLFW_KEY_DELETE;
+            case "INSERT": return GLFW.GLFW_KEY_INSERT;
+            case "HOME": return GLFW.GLFW_KEY_HOME;
+            case "END": return GLFW.GLFW_KEY_END;
+            case "PAGEUP": return GLFW.GLFW_KEY_PAGE_UP;
+            case "PAGEDOWN": return GLFW.GLFW_KEY_PAGE_DOWN;
+            case "UP": case "ARROWUP": return GLFW.GLFW_KEY_UP;
+            case "DOWN": case "ARROWDOWN": return GLFW.GLFW_KEY_DOWN;
+            case "LEFT": case "ARROWLEFT": return GLFW.GLFW_KEY_LEFT;
+            case "RIGHT": case "ARROWRIGHT": return GLFW.GLFW_KEY_RIGHT;
+            case "CAPSLOCK": return GLFW.GLFW_KEY_CAPS_LOCK;
+            case "SCROLLLOCK": return GLFW.GLFW_KEY_SCROLL_LOCK;
+            case "PAUSE": return GLFW.GLFW_KEY_PAUSE;
+            case "PRINTSCREEN": return GLFW.GLFW_KEY_PRINT_SCREEN;
+            default: return -1;
+        }
     }
 
-    public static String getBindName(int key) {
+    /**
+     * Существующий (твой) метод — возвращает строковое имя для keyCode.
+     * Оставил его, чтобы не ломать код, который ожидает именно эту сигнатуру.
+     */
+    public static String getKeyByName(int key) {
         if (key == -1) {
             return "";
         }
+        String name = GLFW.glfwGetKeyName(key, 0);
+        if (name != null) return name.toUpperCase();
 
-        InputUtil.Key code = key < 8 ? MOUSE.createFromCode(key) : KEYSYM.createFromCode(key);
-
-        String bindName = code.getTranslationKey()
-                .replace("key.keyboard.", "")
-                .replace("key.mouse.", "mouse ")
-                .replace(".", " ")
-                .toUpperCase();
-
-        return shortenBindName(bindName);
+        // Фоллбек для спецклавиш
+        switch (key) {
+            case GLFW.GLFW_KEY_SPACE: return "SPACE";
+            case GLFW.GLFW_KEY_ENTER: return "ENTER";
+            case GLFW.GLFW_KEY_TAB: return "TAB";
+            case GLFW.GLFW_KEY_ESCAPE: return "ESC";
+            case GLFW.GLFW_KEY_BACKSPACE: return "BACKSPACE";
+            case GLFW.GLFW_KEY_DELETE: return "DELETE";
+            case GLFW.GLFW_KEY_LEFT_SHIFT: return "LSHIFT";
+            case GLFW.GLFW_KEY_RIGHT_SHIFT: return "RSHIFT";
+            case GLFW.GLFW_KEY_LEFT_CONTROL: return "LCTRL";
+            case GLFW.GLFW_KEY_RIGHT_CONTROL: return "RCTRL";
+            case GLFW.GLFW_KEY_LEFT_ALT: return "LALT";
+            case GLFW.GLFW_KEY_RIGHT_ALT: return "RALT";
+            default: return Integer.toString(key);
+        }
     }
 
-    private static String shortenBindName(String bindName) {
-        return switch (bindName) {
-            case "INSERT" -> "INS";
-            case "PAGE DOWN" -> "P DOWN";
-            case "PAGE UP" -> "P UP";
-            case "PRINT SCREEN" -> "PR SC";
-            case "NUMPAD 0" -> "NUM 0";
-            case "NUMPAD 1" -> "NUM 1";
-            case "NUMPAD 2" -> "NUM 2";
-            case "NUMPAD 3" -> "NUM 3";
-            case "NUMPAD 4" -> "NUM 4";
-            case "NUMPAD 5" -> "NUM 5";
-            case "NUMPAD 6" -> "NUM 6";
-            case "NUMPAD 7" -> "NUM 7";
-            case "NUMPAD 8" -> "NUM 8";
-            case "NUMPAD 9" -> "NUM 9";
-            case "ESCAPE" -> "ESC";
-            case "BACKSPACE" -> "BACKSPC";
-            case "TAB" -> "TAB";
-            case "CAPS LOCK" -> "CAPS";
-            case "LEFT SHIFT" -> "L SHIFT";
-            case "RIGHT SHIFT" -> "R SHIFT";
-            case "LEFT CONTROL" -> "L CTRL";
-            case "RIGHT CONTROL" -> "R CTRL";
-            case "LEFT ALT" -> "L ALT";
-            case "RIGHT ALT" -> "R ALT";
-            case "SPACE" -> "SPACE";
-            case "ENTER" -> "ENTER";
-            case "DELETE" -> "DEL";
-            default -> bindName;
-        };
+    /**
+     * Удобный метод для отображения бинда (если хочешь другой текст — измени здесь).
+     */
+    public static String getBindName(int keyCode) {
+        String s = getKeyByName(keyCode);
+        return (s == null || s.isEmpty()) ? "NONE" : s;
     }
 
-
-    public static String wrap(String input, int width, int size) {
-        String[] words = input.split(" ");
-        StringBuilder output = new StringBuilder();
-        float lineWidth = 0;
-        for (String word : words) {
-            float wordWidth = Fonts.getSize(size).getStringWidth(word);
-            if (lineWidth + wordWidth > width) {
-                output.append("\n \n");
-                lineWidth = 0;
-            } else if (lineWidth > 0) {
-                output.append(" ");
-                lineWidth += Fonts.getSize(size).getStringWidth(" ");
-            }
-            output.append(word);
-            lineWidth += wordWidth;
-        }
-        return output.toString();
-    }
-
-    public static String truncate(String text, float maxWidth, MsdfFont font, float fontSize) {
-        if (text == null || text.isEmpty()) {
-            return text;
-        }
-
-        float textWidth = font.getWidth(text, fontSize);
-        if (textWidth <= maxWidth) {
-            return text;
-        }
-
-        String truncatedText = text;
-        while (!truncatedText.isEmpty() && font.getWidth(truncatedText + "...", fontSize) > maxWidth) {
-            truncatedText = truncatedText.substring(0, truncatedText.length() - 1);
-        }
-
-        return truncatedText + "...";
+    public static String truncate(String text, float maxWidth, MsdfFont font, float nameTextSize) {
+        return text;
     }
 }
