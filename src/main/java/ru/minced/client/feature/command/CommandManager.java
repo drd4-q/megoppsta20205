@@ -37,8 +37,8 @@ public class CommandManager implements IMinecraft {
                 new FriendsCommand(),
                 new BindCommand(),
                 new GPSCommand(),
-                new ClipCommand()
-                , new IrcCommand()
+                new ClipCommand(),
+                new IrcCommand()
 
         ).forEach(command -> {
             commandList.add(command);

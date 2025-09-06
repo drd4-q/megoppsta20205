@@ -7,8 +7,6 @@ import ru.minced.client.core.Minced;
 import ru.minced.client.feature.command.AbstractCommand;
 import ru.minced.client.feature.command.CommandHeader;
 import ru.minced.client.feature.command.arg.KeyArgumentType;
-import ru.minced.client.feature.command.arg.ModuleWithBindArgumentType;
-import ru.minced.client.feature.command.arg.ModuleWithoutBindArgumentType;
 import ru.minced.client.core.file.expection.FileSaveException;
 import ru.minced.client.feature.module.Module;
 import ru.minced.client.feature.module.ModuleManager;
@@ -16,119 +14,124 @@ import ru.minced.client.util.other.StringHelper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
 
 import static ru.minced.client.util.IMinecraft.logDirect;
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
 @CommandHeader(name = "bind", shortDesc = "Управление биндами модулей")
 public class BindCommand extends AbstractCommand {
 
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        builder.then(literal("add").then(argument("module", ModuleWithoutBindArgumentType.create())
-            .then(argument("key", KeyArgumentType.create()).executes(context -> {
-                Module module = context.getArgument("module", Module.class);
-                int key = context.getArgument("key", Integer.class);
-                
-                String oldBindName = StringHelper.getBindName(module.getKey());
-                module.setKey(key);
-                String newBindName = StringHelper.getBindName(key);
-                
-                sendMessage(String.format("Для модуля %s установлен бинд: %s", 
-                        module.getName(), newBindName));
-                
-                try {
-                    Minced.getInstance().getFileController().saveFiles();
-                } catch (FileSaveException e) {
-                    logDirect(String.format("Ошибка при сохранении бинда! Детали: %s", e.getMessage()),
-                            Formatting.RED);
-                }
-                
-                return SINGLE_SUCCESS;
-            }))
+
+        // --- add ---
+        builder.then(literal("add").then(argument("module", StringArgumentType.greedyString())
+                .then(argument("key", KeyArgumentType.create()).executes(context -> {
+                    var inputName = context.getArgument("module", String.class);
+                    var key = context.getArgument("key", Integer.class);
+
+                    var moduleOpt = findModuleIgnoreCase(inputName);
+                    if (moduleOpt.isEmpty()) {
+                        sendMessage("Модуль с именем \"" + inputName + "\" не найден");
+                        return SINGLE_SUCCESS;
+                    }
+
+                    var module = moduleOpt.get();
+                    var oldBind = StringHelper.getBindName(module.getKey());
+                    module.setKey(key);
+                    var newBind = StringHelper.getBindName(key);
+
+                    sendMessage(String.format("Для модуля %s бинд изменён: %s → %s",
+                            module.getName(), oldBind, newBind));
+
+                    saveBinds();
+                    return SINGLE_SUCCESS;
+                }))
         ));
 
-        LiteralArgumentBuilder<CommandSource> removeCommand = literal("remove").then(
-                argument("module", ModuleWithBindArgumentType.create()).executes(context -> {
-                    Module module = context.getArgument("module", Module.class);
-                    
-                    String oldBindName = StringHelper.getBindName(module.getKey());
-                    module.setKey(-1);
-                    
-                    sendMessage(String.format("Для модуля %s удален бинд: %s", 
-                            module.getName(), oldBindName));
-                    
-                    try {
-                        Minced.getInstance().getFileController().saveFiles();
-                    } catch (FileSaveException e) {
-                        logDirect(String.format("Ошибка при сохранении бинда! Детали: %s", e.getMessage()),
-                                Formatting.RED);
-                    }
-                    
-                    return SINGLE_SUCCESS;
-                }));
-        
-        builder.then(removeCommand);
+        // --- remove/delete ---
+        Command<CommandSource> removeExec = (CommandContext<CommandSource> context) -> {
+            var inputName = context.getArgument("module", String.class);
 
-        LiteralArgumentBuilder<CommandSource> deleteCommand = literal("delete").then(
-                argument("module", ModuleWithBindArgumentType.create()).executes(context -> {
-                    Module module = context.getArgument("module", Module.class);
-                    
-                    String oldBindName = StringHelper.getBindName(module.getKey());
-                    module.setKey(-1);
-                    
-                    sendMessage(String.format("Для модуля %s удален бинд: %s", 
-                            module.getName(), oldBindName));
-                    
-                    try {
-                        Minced.getInstance().getFileController().saveFiles();
-                    } catch (FileSaveException e) {
-                        logDirect(String.format("Ошибка при сохранении бинда! Детали: %s", e.getMessage()),
-                                Formatting.RED);
-                    }
-                    
-                    return SINGLE_SUCCESS;
-                }));
-        
-        builder.then(deleteCommand);
+            var moduleOpt = findModuleIgnoreCase(inputName);
+            if (moduleOpt.isEmpty()) {
+                sendMessage("Модуль с именем \"" + inputName + "\" не найден");
+                return SINGLE_SUCCESS;
+            }
 
+            var module = moduleOpt.get();
+            var oldBind = StringHelper.getBindName(module.getKey());
+            module.setKey(-1);
+
+            sendMessage(String.format("Для модуля %s удалён бинд: %s",
+                    module.getName(), oldBind));
+
+            saveBinds();
+            return SINGLE_SUCCESS;
+        };
+
+        builder.then(literal("remove")
+                .then(argument("module", StringArgumentType.greedyString()).executes(removeExec)));
+
+        builder.then(literal("delete") // алиас remove
+                .then(argument("module", StringArgumentType.greedyString()).executes(removeExec)));
+
+        // --- clear ---
         builder.then(literal("clear").executes(context -> {
             int count = 0;
-            for (Module module : ModuleManager.modules) {
+            for (var module : ModuleManager.modules) {
                 if (module.getKey() != -1 && module.getKey() != 0) {
                     module.setKey(-1);
                     count++;
                 }
             }
-            
-            sendMessage(String.format("Удалены бинды для %d модулей", count));
-            
-            try {
-                Minced.getInstance().getFileController().saveFiles();
-            } catch (FileSaveException e) {
-                logDirect(String.format("Ошибка при сохранении бинда! Детали: %s", e.getMessage()),
-                        Formatting.RED);
-            }
-            
+
+            sendMessage("Удалены бинды для " + count + " модулей");
+            saveBinds();
             return SINGLE_SUCCESS;
         }));
 
+        // --- list ---
         builder.then(literal("list").executes(context -> {
-            List<Module> modulesWithBinds = ModuleManager.modules.stream()
-                    .filter(module -> module.getKey() != -1 && module.getKey() != 0)
+            var modulesWithBinds = ModuleManager.modules.stream()
+                    .filter(m -> m.getKey() != -1 && m.getKey() != 0)
                     .toList();
-            
+
             if (modulesWithBinds.isEmpty()) {
                 sendMessage("Нет модулей с установленными биндами");
             } else {
                 sendMessage("Список модулей с биндами:");
-                for (Module module : modulesWithBinds) {
-                    sendMessage(String.format("> %s: %s", 
+                for (var module : modulesWithBinds) {
+                    sendMessage(String.format("> %s: %s",
                             module.getName(), StringHelper.getBindName(module.getKey())));
                 }
             }
-            
             return SINGLE_SUCCESS;
         }));
+    }
+
+    private void saveBinds() {
+        try {
+            Minced.getInstance().getFileController().saveFiles();
+        } catch (FileSaveException e) {
+            logDirect("Ошибка при сохранении бинда! Детали: " + e.getMessage(), Formatting.RED);
+        }
+    }
+
+    /**
+     * Поиск модуля без учёта регистра и пробелов
+     */
+    private Optional<Module> findModuleIgnoreCase(String name) {
+        String normalized = name.replace(" ", "").toLowerCase();
+        return ModuleManager.modules.stream()
+                .filter(m -> m.getName().replace(" ", "").toLowerCase().equals(normalized))
+                .findFirst();
     }
 
     @Override
@@ -139,9 +142,9 @@ public class BindCommand extends AbstractCommand {
                 "Использование:",
                 "> bind add <модуль> <клавиша> - Установить бинд для модуля",
                 "> bind remove <модуль> - Удалить бинд для модуля",
-                "> bind delete <модуль> - Удалить бинд для модуля (алиас команды remove)",
+                "> bind delete <модуль> - Алиас команды remove",
                 "> bind clear - Удалить все бинды",
                 "> bind list - Показать список всех биндов"
         );
     }
-} 
+}
