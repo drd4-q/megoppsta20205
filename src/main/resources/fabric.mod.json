@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "minced",
+  "version": "${version}",
+  "name": "minced-1.21.4",
+  "description": "markest loh",
+  "authors": ["tuskevich"],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "ru.minced.client.core.Minced"
+    ]
+  },
+  "mixins": [
+    "minced.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  },
+  "accessWidener": "minced.accesswidener"
+}

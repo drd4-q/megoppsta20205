@@ -1,0 +1,26 @@
+{
+  "watermark": {
+    "x": 0,
+    "y": 0
+  },
+  "armorinfo": {
+    "x": 0,
+    "y": 0
+  },
+  "targetinfo": {
+    "x": 132,
+    "y": 105
+  },
+  "hotkeys": {
+    "x": 387,
+    "y": 54
+  },
+  "potions": {
+    "x": 516,
+    "y": 62
+  },
+  "inventory": {
+    "x": 329,
+    "y": 124
+  }
+}

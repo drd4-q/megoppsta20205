@@ -1,0 +1,369 @@
+{
+  "afk": {
+    "bind": 0,
+    "state": false,
+    "Interval": 5.0,
+    "Action": "Jump",
+    "Hold shift": false
+  },
+  "ambience": {
+    "bind": 0,
+    "state": true,
+    "Изменять время": true,
+    "Время": 15600.0,
+    "Погода": "Snow",
+    "Слои снега": 12.0,
+    "Интенсивность снега": 1.0,
+    "Кастомный туман": true,
+    "Дальность тумана": 272.5,
+    "Тип тумана": "CYLINDER"
+  },
+  "anti aim": {
+    "bind": 0,
+    "state": false,
+    "Mode": "Static",
+    "Target": "",
+    "Static Yaw": 0.0,
+    "Static Pitch": 0.0,
+    "Spin Speed": 10.0,
+    "Spin Pitch": 90.0,
+    "OTC Speed": 5.0,
+    "OTC Amount": 30.0,
+    "skeet.cc ticks": 8.0
+  },
+  "anti bot": {
+    "bind": 0,
+    "state": false,
+    "Checks": "GameMode",
+    "Remove from world": false
+  },
+  "arrows": {
+    "bind": 0,
+    "state": false,
+    "Radius": 50.0,
+    "Targets": "Armored Players,Unarmored Players"
+  },
+  "aspect": {
+    "bind": 0,
+    "state": false,
+    "Соотношение": 1.8
+  },
+  "attack aura": {
+    "bind": 0,
+    "state": false,
+    "Max Distance": 3.0,
+    "Targets": "Armored Players,Unarmored Players",
+    "Attack setting": "",
+    "Critical mode": "Only critical",
+    "Rotation mode": "Smooth",
+    "Move correction": "Free",
+    "Sprint mode": "Legit",
+    "Version": "1.9",
+    "Show aim point": false,
+    "Debug": false
+  },
+  "auto revival": {
+    "bind": 0,
+    "state": false,
+    "Delay": 0.0
+  },
+  "auto totem": {
+    "bind": 0,
+    "state": false,
+    "Здоровье": 3.5,
+    "Тик": 1.0
+  },
+  "autogg": {
+    "bind": 0,
+    "state": false
+  },
+  "bind swap": {
+    "bind": 0,
+    "state": false,
+    "First item": "Shield",
+    "Second item": "Shield",
+    "Tick": 1.0,
+    "Item use key": 0
+  },
+  "brand spoof": {
+    "bind": 0,
+    "state": false,
+    "Brand": "Minced"
+  },
+  "ct leave": {
+    "bind": 0,
+    "state": false,
+    "Mode": "Invalid slot"
+  },
+  "camera": {
+    "bind": 0,
+    "state": false,
+    "Дистанция": 4.0,
+    "Смещение": 0.0,
+    "No clip": false
+  },
+  "click friend": {
+    "bind": 0,
+    "state": false,
+    "Friend Key": 2
+  },
+  "click gui": {
+    "bind": 0,
+    "state": false,
+    "Открытие меню": 344
+  },
+  "click pearl": {
+    "bind": 0,
+    "state": false,
+    "Throw": 2,
+    "Delay [ticks]": 1.0,
+    "Sync with ClickFriend": true
+  },
+  "criticals": {
+    "bind": 0,
+    "state": false,
+    "Режим": "HolyWorld"
+  },
+  "death coordinates": {
+    "bind": 0,
+    "state": false,
+    "Notify friends": false
+  },
+  "death screen": {
+    "bind": 0,
+    "state": true,
+    "Заменить фон": true
+  },
+  "display": {
+    "bind": 0,
+    "state": true,
+    "Elements": ""
+  },
+  "effect cancel": {
+    "bind": 0,
+    "state": false,
+    "Effects": ""
+  },
+  "elytra helper": {
+    "bind": 0,
+    "state": false,
+    "Elytra swap": 0,
+    "Tick": 1.0
+  },
+  "entity esp": {
+    "bind": 0,
+    "state": true,
+    "Targets": "",
+    "Mode": "Box"
+  },
+  "fake lag": {
+    "bind": 0,
+    "state": false,
+    "Max Delay": 500.0,
+    "Min Delay": 200.0,
+    "Only With Target": false,
+    "Player In Range": false,
+    "Max Range": 5.0,
+    "Min Range": 2.0,
+    "Only When Moving": false,
+    "Only On Ground": false,
+    "Cancel Player Action": true,
+    "Cancel Velocity": true,
+    "Cancel Player Interact": true,
+    "Cancel Position": true,
+    "Cancel Explosion": true,
+    "Cancel Health Update": true,
+    "Render Box": true
+  },
+  "fly": {
+    "bind": 0,
+    "state": false
+  },
+  "free cam": {
+    "bind": 0,
+    "state": false,
+    "Speed": 2.9
+  },
+  "freeze": {
+    "bind": 0,
+    "state": false
+  },
+  "item esp": {
+    "bind": 0,
+    "state": false,
+    "Mode": "Box",
+    "Auto transparency": false
+  },
+  "item physic": {
+    "bind": 0,
+    "state": true
+  },
+  "item scroller": {
+    "bind": 0,
+    "state": false,
+    "Delay (ticks)": 1.0
+  },
+  "liquid walk": {
+    "bind": 0,
+    "state": false,
+    "Speed": 0.0,
+    "Mode": "SpookyTime",
+    "Sprint": false
+  },
+  "mace kill": {
+    "bind": 0,
+    "state": false
+  },
+  "name protect": {
+    "bind": 0,
+    "state": false,
+    "Name": "Minced"
+  },
+  "name tags": {
+    "bind": 0,
+    "state": true,
+    "Mode": ""
+  },
+  "night vision": {
+    "bind": 0,
+    "state": true,
+    "Режим": "Effect"
+  },
+  "no damage": {
+    "bind": 0,
+    "state": false
+  },
+  "no delay": {
+    "bind": 0,
+    "state": false,
+    "Jump": true,
+    "Right click": false
+  },
+  "no entity trace": {
+    "bind": 0,
+    "state": false
+  },
+  "no head place": {
+    "bind": 0,
+    "state": false
+  },
+  "no push": {
+    "bind": 0,
+    "state": false,
+    "Types": "Player,Block"
+  },
+  "no render": {
+    "bind": 0,
+    "state": true,
+    "Удаление": ""
+  },
+  "no slot change": {
+    "bind": 0,
+    "state": false
+  },
+  "no slow": {
+    "bind": 0,
+    "state": false,
+    "Мод": "Vanilla"
+  },
+  "no web": {
+    "bind": 0,
+    "state": false
+  },
+  "particle": {
+    "bind": 0,
+    "state": false,
+    "Gravity Strength": 0.0,
+    "Spread Strength": 5.0,
+    "Lifetime": 2.0,
+    "Particle Count": 3.0,
+    "Particles": ""
+  },
+  "pearl prediction": {
+    "bind": 0,
+    "state": false
+  },
+  "rp spoof": {
+    "bind": 0,
+    "state": true
+  },
+  "reach": {
+    "bind": 0,
+    "state": false,
+    "BlocksRange": 3.0,
+    "EntityRange": 3.0
+  },
+  "screen walk": {
+    "bind": 0,
+    "state": false,
+    "Mode": "Grim"
+  },
+  "sounds": {
+    "bind": 0,
+    "state": true,
+    "Volume": 0.1
+  },
+  "speed": {
+    "bind": 0,
+    "state": false
+  },
+  "sprint": {
+    "bind": 0,
+    "state": false,
+    "Keep Sprint": false
+  },
+  "tnt timer": {
+    "bind": 0,
+    "state": true
+  },
+  "target esp": {
+    "bind": 0,
+    "state": true,
+    "Mode": "Marker"
+  },
+  "theme": {
+    "bind": 0,
+    "state": true,
+    "Theme": "Forest"
+  },
+  "tracers": {
+    "bind": 0,
+    "state": false,
+    "Targets": ""
+  },
+  "trigger": {
+    "bind": 0,
+    "state": false,
+    "Цели": "",
+    "Attack setting": "",
+    "Critical mode": "Only critical",
+    "Version": "1.9"
+  },
+  "true sight": {
+    "bind": 0,
+    "state": false,
+    "Прозрачность": 0.5
+  },
+  "twerk": {
+    "bind": 0,
+    "state": false
+  },
+  "velocity": {
+    "bind": 0,
+    "state": false,
+    "Mode": "Cancel"
+  },
+  "view model": {
+    "bind": 0,
+    "state": false,
+    "Only with AttackAura": true,
+    "Swing Duration": 6.0,
+    "Strength": 60.0,
+    "Main X": 0.0,
+    "Main Y": 0.0,
+    "Main Z": 0.0,
+    "Offhand X": 0.0,
+    "Offhand Y": 0.0,
+    "Offhand Z": 0.0
+  }
+}

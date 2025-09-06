@@ -1,0 +1,10 @@
+accessWidener	v1	named
+
+accessible method net/minecraft/client/world/ClientWorld getPendingUpdateManager ()Lnet/minecraft/client/network/PendingUpdateManager;
+accessible method net/minecraft/entity/Entity getFlag (I)Z
+accessible method net/minecraft/entity/projectile/thrown/ThrownEntity getGravity ()D
+accessible method net/minecraft/client/network/ClientPlayerInteractionManager sendSequencedPacket (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/network/SequencedPacketCreator;)V
+accessible method net/minecraft/client/render/Camera setPos (Lnet/minecraft/util/math/Vec3d;)V
+accessible method net/minecraft/client/render/Camera setPos (DDD)V
+accessible field net/minecraft/client/gui/hud/BossBarHud bossBars Ljava/util/Map;
+accessible field net/minecraft/client/gui/hud/InGameHud HOTBAR_TEXTURE Lnet/minecraft/util/Identifier;
