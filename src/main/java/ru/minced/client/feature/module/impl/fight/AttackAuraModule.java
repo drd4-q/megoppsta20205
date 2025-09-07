@@ -203,7 +203,7 @@ public class AttackAuraModule extends Module {
         }
         return SprintManager.Mode.NONE;
     }
-// porno
+// pornoh
     public AngleMode getSmoothMode() {
         switch (rotationMode.getSelected()) {
             case "Grim" -> {
