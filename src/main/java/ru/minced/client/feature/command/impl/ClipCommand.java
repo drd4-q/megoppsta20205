@@ -26,7 +26,7 @@ public class ClipCommand extends AbstractCommand implements ILogger {
         builder.suggest("1").suggest("3").suggest("5").suggest("-1").suggest("-3").suggest("-5");
         return builder.buildFuture();
     };
-
+//
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("mode", StringArgumentType.word())
