@@ -79,7 +79,7 @@ public class HybridHolyInstantMode extends AngleMode {
     private float getGCDValue() {
         return (float) (getGCD() * 0.15);
     }
-// пваррва
+// пнкпавол
     private float getGCD() {
         float f1 = (float) (mc.options.getMouseSensitivity().getValue() * 0.6 + 0.2);
         return f1 * f1 * f1 * 8;
