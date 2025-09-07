@@ -52,7 +52,7 @@
     "bind": 0,
     "state": false,
     "Max Distance": 3.0,
-    "Targets": "Armored Players,Unarmored Players,Animals",
+    "Targets": "Armored Players,Unarmored Players",
     "Attack setting": "",
     "Critical mode": "Only critical",
     "Rotation mode": "Smooth",
@@ -87,7 +87,7 @@
   },
   "brand spoof": {
     "bind": 0,
-    "state": true,
+    "state": false,
     "Brand": "Minced"
   },
   "ct leave": {
@@ -109,7 +109,7 @@
   },
   "click gui": {
     "bind": 0,
-    "state": true,
+    "state": false,
     "Открытие меню": 344
   },
   "click pearl": {
@@ -137,7 +137,7 @@
   "display": {
     "bind": 0,
     "state": true,
-    "Elements": "Watermark,Hotkeys,Potions,ArmorInfo,TargetInfo,Inventory"
+    "Elements": ""
   },
   "effect cancel": {
     "bind": 0,
@@ -281,7 +281,7 @@
   },
   "pearl prediction": {
     "bind": 0,
-    "state": true
+    "state": false
   },
   "rp spoof": {
     "bind": 0,
@@ -328,8 +328,8 @@
   },
   "tracers": {
     "bind": 0,
-    "state": true,
-    "Targets": "Unarmored Players,Armored Players,Invisible Players"
+    "state": false,
+    "Targets": ""
   },
   "trigger": {
     "bind": 0,

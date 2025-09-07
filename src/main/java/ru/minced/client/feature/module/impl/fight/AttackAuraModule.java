@@ -1,5 +1,6 @@
 package ru.minced.client.feature.module.impl.fight;
 
+import net.minecraft.entity.Entity;
 import ru.minced.client.core.event.impl.player.EventTick;
 import lombok.Getter;
 import lombok.experimental.NonFinal;
@@ -68,7 +69,7 @@ public class AttackAuraModule extends Module {
     private final ModeListSetting attackSetting = new ModeListSetting("Attack setting",
             "Raytrace check", "Dynamic cooldown", "Break shield", "Un press shield", "Check use");
     private final ModeSetting criticalMode = new ModeSetting("Critical mode", "None", "Only critical", "Adaptive");
-    private final ModeSetting rotationMode = new ModeSetting("Rotation mode", "Grim", "Smooth");
+    private final ModeSetting rotationMode = new ModeSetting("Rotation mode", "Grim", "Smooth", "Holyworld");
     private final ModeSetting moveCorrectionMode = new ModeSetting("Move correction", "None", "Free", "Direct");
     private final ModeSetting sprintMode = new ModeSetting("Sprint mode", "None", "Legit", "Packet");
     private final ModeSetting versionMode = new ModeSetting("Version", "1.8", "1.9");
@@ -210,6 +211,19 @@ public class AttackAuraModule extends Module {
             }
             case "Smooth" -> {
                 return new SmoothMode();
+            }
+            case "Holyworld" -> {
+                return new HybridHolyInstantMode() {
+                    @Override
+                    public Angle limitAngleChange(Angle currentAngle, Angle targetAngle, Vec3d vec3d, Entity entity) {
+                        return null;
+                    }
+
+                    @Override
+                    public Vec3d randomValue() {
+                        return null;
+                    }
+                };
             }
         }
         return null;

@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/minced-1.21.4.main.iml" filepath="$PROJECT_DIR$/.idea/modules/minced-1.21.4.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/megoppsta20205.main.iml" filepath="$PROJECT_DIR$/.idea/modules/megoppsta20205.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/megoppsta20205.test.iml" filepath="$PROJECT_DIR$/.idea/modules/megoppsta20205.test.iml" />
     </modules>
   </component>
 </project>
