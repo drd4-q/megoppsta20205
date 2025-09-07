@@ -1,143 +1,147 @@
 package ru.minced.client.feature.command.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.Command;
 import net.minecraft.command.CommandSource;
 import net.minecraft.util.Formatting;
+import ru.minced.client.core.Minced;
 import ru.minced.client.feature.command.AbstractCommand;
+import ru.minced.client.feature.command.CommandHeader;
+import ru.minced.client.feature.command.arg.KeyArgumentType;
+import ru.minced.client.feature.command.arg.ModuleWithBindArgumentType;
+import ru.minced.client.feature.command.arg.ModuleWithoutBindArgumentType;
+import ru.minced.client.core.file.expection.FileSaveException;
 import ru.minced.client.feature.module.Module;
 import ru.minced.client.feature.module.ModuleManager;
 import ru.minced.client.util.other.StringHelper;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.List;
 
-import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
-import static com.mojang.brigadier.arguments.StringArgumentType.word;
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
-import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 import static ru.minced.client.util.IMinecraft.logDirect;
 
-public abstract class BindCommand extends AbstractCommand {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File BINDS_FILE = new File("binds.json");
-    private static final int SINGLE_SUCCESS = 1;
-
-    public BindCommand() {
-        super("bind", "Добавление/удаление биндов на модули");
-    }
+@CommandHeader(name = "bind", shortDesc = "Управление биндами модулей")
+public class BindCommand extends AbstractCommand {
 
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        // .bind add <module> <key>
-        builder.then(literal("add")
-                .then(argument("module", greedyString())
-                        .then(argument("key", word())
-                                .executes(this::addExec))));
+        builder.then(literal("add").then(argument("module", ModuleWithoutBindArgumentType.create())
+            .then(argument("key", KeyArgumentType.create()).executes(context -> {
+                Module module = context.getArgument("module", Module.class);
+                int key = context.getArgument("key", Integer.class);
+                
+                String oldBindName = StringHelper.getBindName(module.getKey());
+                module.setKey(key);
+                String newBindName = StringHelper.getBindName(key);
+                
+                sendMessage(String.format("Для модуля %s установлен бинд: %s", 
+                        module.getName(), newBindName));
+                
+                try {
+                    Minced.getInstance().getFileController().saveFiles();
+                } catch (FileSaveException e) {
+                    logDirect(String.format("Ошибка при сохранении бинда! Детали: %s", e.getMessage()),
+                            Formatting.RED);
+                }
+                
+                return SINGLE_SUCCESS;
+            }))
+        ));
 
-        // .bind remove <module>
-        builder.then(literal("remove")
-                .then(argument("module", greedyString())
-                        .executes(this::removeExec)));
-    }
+        LiteralArgumentBuilder<CommandSource> removeCommand = literal("remove").then(
+                argument("module", ModuleWithBindArgumentType.create()).executes(context -> {
+                    Module module = context.getArgument("module", Module.class);
+                    
+                    String oldBindName = StringHelper.getBindName(module.getKey());
+                    module.setKey(-1);
+                    
+                    sendMessage(String.format("Для модуля %s удален бинд: %s", 
+                            module.getName(), oldBindName));
+                    
+                    try {
+                        Minced.getInstance().getFileController().saveFiles();
+                    } catch (FileSaveException e) {
+                        logDirect(String.format("Ошибка при сохранении бинда! Детали: %s", e.getMessage()),
+                                Formatting.RED);
+                    }
+                    
+                    return SINGLE_SUCCESS;
+                }));
+        
+        builder.then(removeCommand);
 
-    /**
-     * Выполнение .bind add <module> <key>
-     */
-    private int addExec(CommandContext<CommandSource> context) {
-        String inputName = context.getArgument("module", String.class);
-        String keyName = context.getArgument("key", String.class);
+        LiteralArgumentBuilder<CommandSource> deleteCommand = literal("delete").then(
+                argument("module", ModuleWithBindArgumentType.create()).executes(context -> {
+                    Module module = context.getArgument("module", Module.class);
+                    
+                    String oldBindName = StringHelper.getBindName(module.getKey());
+                    module.setKey(-1);
+                    
+                    sendMessage(String.format("Для модуля %s удален бинд: %s", 
+                            module.getName(), oldBindName));
+                    
+                    try {
+                        Minced.getInstance().getFileController().saveFiles();
+                    } catch (FileSaveException e) {
+                        logDirect(String.format("Ошибка при сохранении бинда! Детали: %s", e.getMessage()),
+                                Formatting.RED);
+                    }
+                    
+                    return SINGLE_SUCCESS;
+                }));
+        
+        builder.then(deleteCommand);
 
-        Optional<Module> moduleOpt = findModuleIgnoreCase(inputName);
-        if (moduleOpt.isEmpty()) {
-            sendMessage("Модуль с именем \"" + inputName + "\" не найден");
-            return SINGLE_SUCCESS;
-        }
-
-        Module module = moduleOpt.get();
-        int keyCode = StringHelper.getKeyByName(keyName);
-        if (keyCode == -1) {
-            sendMessage("Неверное имя клавиши: " + keyName);
-            return SINGLE_SUCCESS;
-        }
-
-        module.setKey(keyCode);
-        sendMessage("Для модуля " + module.getName() + " установлен бинд: " + keyName);
-
-        saveBinds();
-        return SINGLE_SUCCESS;
-    }
-
-    /**
-     * Выполнение .bind remove <module>
-     */
-    private int removeExec(CommandContext<CommandSource> context) {
-        String inputName = context.getArgument("module", String.class);
-
-        Optional<Module> moduleOpt = findModuleIgnoreCase(inputName);
-        if (moduleOpt.isEmpty()) {
-            sendMessage("Модуль с именем \"" + inputName + "\" не найден");
-            return SINGLE_SUCCESS;
-        }
-
-        Module module = moduleOpt.get();
-        String oldBind = StringHelper.getBindName(module.getKey());
-        module.setKey(-1);
-
-        sendMessage("Для модуля " + module.getName() + " удалён бинд: " + oldBind);
-
-        saveBinds();
-        return SINGLE_SUCCESS;
-    }
-
-
-    private Optional<Module> findModuleIgnoreCase(String input) {
-        String normalized = input.replace(" ", "").toLowerCase();
-        return ModuleManager.modules.stream()
-                .filter(m -> m.getName().replace(" ", "").equalsIgnoreCase(normalized))
-                .findFirst();
-    }
-
-    // ===== JSON SAVE / LOAD =====
-    public static void saveBinds() {
-        try {
-            Map<String, Integer> binds = new HashMap<>();
+        builder.then(literal("clear").executes(context -> {
+            int count = 0;
             for (Module module : ModuleManager.modules) {
-                if (module.getKey() > 0) {
-                    binds.put(module.getName(), module.getKey());
+                if (module.getKey() != -1 && module.getKey() != 0) {
+                    module.setKey(-1);
+                    count++;
                 }
             }
-            try (FileWriter writer = new FileWriter(BINDS_FILE)) {
-                GSON.toJson(binds, writer);
+            
+            sendMessage(String.format("Удалены бинды для %d модулей", count));
+            
+            try {
+                Minced.getInstance().getFileController().saveFiles();
+            } catch (FileSaveException e) {
+                logDirect(String.format("Ошибка при сохранении бинда! Детали: %s", e.getMessage()),
+                        Formatting.RED);
             }
-        } catch (IOException e) {
-            logDirect("Ошибка при сохранении бинда! Детали: " + e.getMessage(), Formatting.RED);
-        }
-    }
+            
+            return SINGLE_SUCCESS;
+        }));
 
-    public static void loadBinds() {
-        if (!BINDS_FILE.exists()) return;
-        try (FileReader reader = new FileReader(BINDS_FILE)) {
-            Type type = new TypeToken<Map<String, Integer>>() {}.getType();
-            Map<String, Integer> binds = GSON.fromJson(reader, type);
-
-            for (Module module : ModuleManager.modules) {
-                if (binds.containsKey(module.getName())) {
-                    module.setKey(binds.get(module.getName()));
+        builder.then(literal("list").executes(context -> {
+            List<Module> modulesWithBinds = ModuleManager.modules.stream()
+                    .filter(module -> module.getKey() != -1 && module.getKey() != 0)
+                    .toList();
+            
+            if (modulesWithBinds.isEmpty()) {
+                sendMessage("Нет модулей с установленными биндами");
+            } else {
+                sendMessage("Список модулей с биндами:");
+                for (Module module : modulesWithBinds) {
+                    sendMessage(String.format("> %s: %s", 
+                            module.getName(), StringHelper.getBindName(module.getKey())));
                 }
             }
-        } catch (IOException e) {
-            logDirect("Ошибка при загрузке биндов! Детали: " + e.getMessage(), Formatting.RED);
-        }
+            
+            return SINGLE_SUCCESS;
+        }));
     }
-}
+
+    @Override
+    public List<String> getLongDesc() {
+        return Arrays.asList(
+                "Управление биндами модулей",
+                "",
+                "Использование:",
+                "> bind add <модуль> <клавиша> - Установить бинд для модуля",
+                "> bind remove <модуль> - Удалить бинд для модуля",
+                "> bind delete <модуль> - Удалить бинд для модуля (алиас команды remove)",
+                "> bind clear - Удалить все бинды",
+                "> bind list - Показать список всех биндов"
+        );
+    }
+} //
