@@ -16,7 +16,7 @@ public class HybridHolyInstantMode extends AngleMode {
 
     @Override
     public Angle limitAngleChange(Angle currentAngle, Angle targetAngle, Vec3d vec3d, Entity entity) {
-        // разница углов
+        // разница угловsd
         Angle angleDelta = AngleUtil.calculateDelta(currentAngle, targetAngle);
         float yawDelta = angleDelta.getYaw();
         float pitchDelta = angleDelta.getPitch();
